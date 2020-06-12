@@ -1,0 +1,5 @@
+C:\Users\Filipe Reis\source\repos\M3Extracao\M3.Infra.Dapper\bin\Debug\netcoreapp3.1\Repository.Dapper.deps.json
+C:\Users\Filipe Reis\source\repos\M3Extracao\M3.Infra.Dapper\bin\Debug\netcoreapp3.1\Repository.Dapper.dll
+C:\Users\Filipe Reis\source\repos\M3Extracao\M3.Infra.Dapper\obj\Debug\netcoreapp3.1\Repository.Dapper.csprojAssemblyReference.cache
+C:\Users\Filipe Reis\source\repos\M3Extracao\M3.Infra.Dapper\obj\Debug\netcoreapp3.1\Repository.Dapper.AssemblyInfoInputs.cache
+C:\Users\Filipe Reis\source\repos\M3Extracao\M3.Infra.Dapper\obj\Debug\netcoreapp3.1\Repository.Dapper.AssemblyInfo.cs
