@@ -1,0 +1,10 @@
+﻿{
+  "profiles": {
+    "M3.BackgroundTasks": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
