@@ -1,13 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Repository.Dapper;
+using Repository.Dapper.Connection;
+using Repository.Dapper.Contracts;
 
 namespace M3.BackgroundTasks
 {
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {
@@ -19,6 +18,8 @@ namespace M3.BackgroundTasks
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddHostedService<Worker>();
+                    services.AddSingleton<IConfigRepository, ConfigRepository>();
+                    services.AddSingleton<IConnectionFactory, DeafultSqlConnectionFactory>();
                 });
     }
 }

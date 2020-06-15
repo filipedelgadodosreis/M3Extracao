@@ -8,7 +8,7 @@ namespace Repository.Dapper.Connection
     {
         public IDbConnection Connection()
         {
-            return new SqlConnection("Database=HeroDB;Data Source=(localdb)\\MSSQLLocalDB;");
+            return new SqlConnection("Server=187.84.234.99;Database=dbMGIAdmin;User ID=userArena;Password=arena@2020");
         }
     }
 }
