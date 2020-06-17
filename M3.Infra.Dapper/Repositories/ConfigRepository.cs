@@ -23,7 +23,7 @@ namespace Repository.Dapper
 
         public async Task<IEnumerable<M3EmpresaCad>> Get()
         {
-            string sql = $"Select IdEmpresa, Status, ConsumerKey, ConsumerSecret From [m3].[C4MEmpresaCad] Where Status = 1";
+            string sql = $"Select IdEmpresa, NmRazaoSocial From [config].[CadEmpresas]";
 
             using var connectionDb = _connection.Connection();
             connectionDb.Open();
@@ -31,17 +31,22 @@ namespace Repository.Dapper
             return await connectionDb.QueryAsync<M3EmpresaCad>(sql);
         }
 
-        public Task<Device> GetById(int configId)
+        public async Task<M3EmpresaCad> GetById(int configId)
+        {
+            string sql = $"Select IdEmpresa, NmRazaoSocial From [config].[CadEmpresas] where [IdEmpresa] = @ConfigId";
+
+            using var connectionDb = _connection.Connection();
+            connectionDb.Open();
+
+            return await connectionDb.QueryFirstOrDefaultAsync<M3EmpresaCad>(sql, new { ConfigId = configId });
+        }
+
+        public Task<M3EmpresaCad> Insert(M3EmpresaCad config)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Device> Insert(M3EmpresaCad config)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Device> Update(M3EmpresaCad config)
+        public Task<M3EmpresaCad> Update(M3EmpresaCad config)
         {
             throw new NotImplementedException();
         }

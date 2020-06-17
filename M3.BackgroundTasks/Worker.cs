@@ -28,7 +28,7 @@ namespace M3.BackgroundTasks
             {
                 try
                 {
-                    IEnumerable<M3EmpresaCad> m3EmpresaCads = await _repository.Get();
+                    var m3EmpresaCads = await _repository.GetById(46);
                 }
                 catch (Exception ex)
                 {
