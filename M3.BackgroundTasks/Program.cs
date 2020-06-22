@@ -21,6 +21,6 @@ namespace M3.BackgroundTasks
 
                     services.AddSingleton(options);
                     services.AddHostedService<Worker>();
-                });
+                }).UseWindowsService();
     }
 }

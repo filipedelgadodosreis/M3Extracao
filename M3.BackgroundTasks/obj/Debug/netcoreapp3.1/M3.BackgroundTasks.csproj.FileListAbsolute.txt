@@ -55,4 +55,3 @@ C:\Users\Filipe Reis\source\repos\M3Extracao\M3.BackgroundTasks\bin\Debug\netcor
 C:\Users\Filipe Reis\source\repos\M3Extracao\M3.BackgroundTasks\bin\Debug\netcoreapp3.1\System.Security.Permissions.dll
 C:\Users\Filipe Reis\source\repos\M3Extracao\M3.BackgroundTasks\bin\Debug\netcoreapp3.1\Z.Dapper.Plus.dll
 C:\Users\Filipe Reis\source\repos\M3Extracao\M3.BackgroundTasks\bin\Debug\netcoreapp3.1\runtimes\win\lib\netstandard2.0\System.Security.Cryptography.ProtectedData.dll
-C:\Users\Filipe Reis\source\repos\M3Extracao\M3.BackgroundTasks\obj\Debug\netcoreapp3.1\M3.BackgroundTasks.csproj.CoreCompileInputs.cache

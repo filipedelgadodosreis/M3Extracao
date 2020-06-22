@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "jHeWRnvYrrw9NLM1dI3f/0Pp2S8sxlD0zByhyjpUFJiYm71IJFFJafJuYW/1p8qkSTyjdG3KB2EQBRnpTvEsFQ==",
+  "dgSpecHash": "dXsj22ywKOxiScurz8Zygbd5dVmbbnPwwXqjgFSKoO/s7kq3w2TNk+tai8CPmdUSDaCBPZCUSzMsPwWP0f5oHA==",
   "success": true,
   "projectFilePath": "C:\\Users\\Filipe Reis\\source\\repos\\M3Extracao\\M3.BackgroundTasks\\M3.BackgroundTasks.csproj",
   "expectedPackageFiles": [
@@ -21,6 +21,7 @@
     "C:\\Users\\Filipe Reis\\.nuget\\packages\\microsoft.extensions.filesystemglobbing\\3.1.4\\microsoft.extensions.filesystemglobbing.3.1.4.nupkg.sha512",
     "C:\\Users\\Filipe Reis\\.nuget\\packages\\microsoft.extensions.hosting\\3.1.4\\microsoft.extensions.hosting.3.1.4.nupkg.sha512",
     "C:\\Users\\Filipe Reis\\.nuget\\packages\\microsoft.extensions.hosting.abstractions\\3.1.4\\microsoft.extensions.hosting.abstractions.3.1.4.nupkg.sha512",
+    "C:\\Users\\Filipe Reis\\.nuget\\packages\\microsoft.extensions.hosting.windowsservices\\3.1.4\\microsoft.extensions.hosting.windowsservices.3.1.4.nupkg.sha512",
     "C:\\Users\\Filipe Reis\\.nuget\\packages\\microsoft.extensions.logging\\3.1.4\\microsoft.extensions.logging.3.1.4.nupkg.sha512",
     "C:\\Users\\Filipe Reis\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\3.1.4\\microsoft.extensions.logging.abstractions.3.1.4.nupkg.sha512",
     "C:\\Users\\Filipe Reis\\.nuget\\packages\\microsoft.extensions.logging.configuration\\3.1.4\\microsoft.extensions.logging.configuration.3.1.4.nupkg.sha512",
@@ -46,6 +47,7 @@
     "C:\\Users\\Filipe Reis\\.nuget\\packages\\system.security.cryptography.protecteddata\\4.5.0\\system.security.cryptography.protecteddata.4.5.0.nupkg.sha512",
     "C:\\Users\\Filipe Reis\\.nuget\\packages\\system.security.permissions\\4.5.0\\system.security.permissions.4.5.0.nupkg.sha512",
     "C:\\Users\\Filipe Reis\\.nuget\\packages\\system.security.principal.windows\\4.7.0\\system.security.principal.windows.4.7.0.nupkg.sha512",
+    "C:\\Users\\Filipe Reis\\.nuget\\packages\\system.serviceprocess.servicecontroller\\4.7.0\\system.serviceprocess.servicecontroller.4.7.0.nupkg.sha512",
     "C:\\Users\\Filipe Reis\\.nuget\\packages\\z.dapper.plus\\3.0.14\\z.dapper.plus.3.0.14.nupkg.sha512"
   ],
   "logs": []
