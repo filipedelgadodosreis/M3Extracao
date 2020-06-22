@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
+using Z.Dapper.Plus;
 
 namespace M3.BackgroundTasks
 {
@@ -15,7 +16,7 @@ namespace M3.BackgroundTasks
         private readonly WorkerSettings _settings;
 
         private readonly ILogger<Worker> _logger;
-        private readonly List<Device> lstDevices = new List<Device>();
+        private IEnumerable<Device> lstDevices = null;
 
         public Worker(ILogger<Worker> logger, WorkerSettings settings)
         {
@@ -29,32 +30,82 @@ namespace M3.BackgroundTasks
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                try
-                {
-                    var m3EmpresaCads = await BuscarEmpresa(46);
-
-                    ExtrairDados();
-
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError($"Erro ao carregar dados M3: {ex.Message}");
-                }
-
-
-                _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                await Task.Delay(1000, stoppingToken);
+                await Task.Delay(ProcessTime(), stoppingToken).ContinueWith((x) => ProcessWorker());
             }
 
             _logger.LogDebug("Fim do processo.");
         }
 
         /// <summary>
+        /// Método que calcula o horário de processamento diário
+        /// </summary>
+        /// <returns></returns>
+        private TimeSpan ProcessTime()
+        {
+            var DailyTime = _settings.DailyTime;
+            var timeParts = DailyTime.Split(new char[1] { ':' });
+
+            var dateNow = DateTime.Now;
+            var date = new DateTime(dateNow.Year, dateNow.Month, dateNow.Day,
+                       int.Parse(timeParts[0]), int.Parse(timeParts[1]), int.Parse(timeParts[2]));
+
+            TimeSpan ts;
+            if (date > dateNow)
+                ts = date - dateNow;
+            else
+            {
+                date = date.AddDays(1);
+                ts = date - dateNow;
+            }
+
+            return ts;
+        }
+
+        private async Task ProcessWorker()
+        {
+            try
+            {
+                // TODO:  Perguntar ao Cicero o pq desta tabela... esqueci
+                var m3EmpresaCads = await BuscarEmpresa(46);
+
+                await ExtrairDados();
+                SalvarDados();
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Erro ao carregar dados M3: {ex.Message}");
+            }
+
+
+            _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+        }
+
+        /// <summary>
         /// Método responsável por extrair as informações da fonte
         /// </summary>
-        private async void ExtrairDados()
+        private async Task ExtrairDados()
         {
-            //var lista = await _deviceRepository.Get();
+            string sql = @"SELECT d.Device_ID, d.FreeBatteryPercentage, d.DEVICE_NAME, d.LastConnection, u.unit_group_name, d.FreeMemoryPercentage, d.FreeStoragePercentage, d.DEVICE_EXT_UNIT, mp.MDM_PROP_VALUE, 46 as IdEmpresa, GETUTCDATE() as DtLeitura " +
+                            "FROM device d " +
+                            "INNER JOIN unit_group u " +
+                            "ON  u.UNIT_GROUP_ID = d.UNIT_GROUP_ID " +
+                            "LEFT JOIN DEVICE_MDM_PROPERTY mp " +
+                            "ON d.DEVICE_ID = mp.DEVICE_ID " +
+                            "AND mp.MDM_PROP_KEY = 'TELEPHONY_OPERATOR' " +
+                            "WHERE d.DEVICE_EXT_UNIT in ('rde','rd6','army') and d.ENABLED = 1; ";
+
+            using var conn = new SqlConnection(_settings.DefaultConnection);
+            try
+            {
+                conn.Open();
+
+                lstDevices = await conn.QueryAsync<Device>(sql);
+            }
+            catch (SqlException exception)
+            {
+                _logger.LogCritical(exception, "FATAL ERROR: Database connections could not be opened: {Message}", exception.Message);
+            }
         }
 
         /// <summary>
@@ -63,7 +114,19 @@ namespace M3.BackgroundTasks
         /// </summary>
         private void SalvarDados()
         {
+            DapperPlusManager.Entity<Device>().Table("[m3].[CargaDadosEquipamento]");
 
+            using (var conn = new SqlConnection(_settings.LocalConnection))
+            {
+                try
+                {
+                    conn.BulkInsert(lstDevices);
+                }
+                catch (SqlException exception)
+                {
+                    _logger.LogCritical(exception, "FATAL ERROR: Database connections could not be opened: {Message}", exception.Message);
+                }
+            }
         }
 
         /// <summary> 
@@ -75,7 +138,7 @@ namespace M3.BackgroundTasks
 
             string sql = $"Select IdEmpresa, NmRazaoSocial From [config].[CadEmpresas] where [IdEmpresa] = @ConfigId";
 
-            using (var conn = new SqlConnection(_settings.DefaultConnection))
+            using (var conn = new SqlConnection(_settings.LocalConnection))
             {
                 try
                 {

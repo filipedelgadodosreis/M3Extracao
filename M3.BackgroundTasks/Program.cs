@@ -17,7 +17,7 @@ namespace M3.BackgroundTasks
                 {
                     IConfiguration configuration = hostContext.Configuration;
 
-                    WorkerSettings options = configuration.GetSection("ConnectionStrings").Get<WorkerSettings>();
+                    WorkerSettings options = configuration.GetSection("ServiceConfigurations").Get<WorkerSettings>();
 
                     services.AddSingleton(options);
                     services.AddHostedService<Worker>();
