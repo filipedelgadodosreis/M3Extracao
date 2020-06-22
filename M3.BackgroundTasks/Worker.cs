@@ -1,9 +1,10 @@
+using Dapper;
 using M3.Domain;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Repository.Dapper.Contracts;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,13 +12,15 @@ namespace M3.BackgroundTasks
 {
     public class Worker : BackgroundService
     {
-        private readonly IConfigRepository _repository;
-        private readonly ILogger<Worker> _logger;
+        private readonly WorkerSettings _settings;
 
-        public Worker(ILogger<Worker> logger, IConfigRepository repository)
+        private readonly ILogger<Worker> _logger;
+        private readonly List<Device> lstDevices = new List<Device>();
+
+        public Worker(ILogger<Worker> logger, WorkerSettings settings)
         {
             _logger = logger;
-            _repository = repository;
+            _settings = settings;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -28,7 +31,10 @@ namespace M3.BackgroundTasks
             {
                 try
                 {
-                    var m3EmpresaCads = await _repository.GetById(46);
+                    var m3EmpresaCads = await BuscarEmpresa(46);
+
+                    ExtrairDados();
+
                 }
                 catch (Exception ex)
                 {
@@ -46,9 +52,9 @@ namespace M3.BackgroundTasks
         /// <summary>
         /// Método responsável por extrair as informações da fonte
         /// </summary>
-        private void ExtrairDados()
+        private async void ExtrairDados()
         {
-
+            //var lista = await _deviceRepository.Get();
         }
 
         /// <summary>
@@ -63,9 +69,28 @@ namespace M3.BackgroundTasks
         /// <summary> 
         /// Método responsável por buscar as informações de configurações  
         /// </summary>
-        private void BuscarEmpresa()
+        private async Task<M3EmpresaCad> BuscarEmpresa(int configId)
         {
+            M3EmpresaCad m3EmpresaCad = null;
 
+            string sql = $"Select IdEmpresa, NmRazaoSocial From [config].[CadEmpresas] where [IdEmpresa] = @ConfigId";
+
+            using (var conn = new SqlConnection(_settings.DefaultConnection))
+            {
+                try
+                {
+                    conn.Open();
+
+                    m3EmpresaCad = await conn.QueryFirstOrDefaultAsync<M3EmpresaCad>(sql, new { ConfigId = configId });
+                }
+                catch (SqlException exception)
+                {
+                    _logger.LogCritical(exception, "FATAL ERROR: Database connections could not be opened: {Message}", exception.Message);
+                }
+
+            }
+
+            return m3EmpresaCad;
         }
     }
 }

@@ -41,14 +41,12 @@ C:\Users\Filipe Reis\source\repos\M3Extracao\M3.BackgroundTasks\bin\Debug\netcor
 C:\Users\Filipe Reis\source\repos\M3Extracao\M3.BackgroundTasks\bin\Debug\netcoreapp3.1\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll
 C:\Users\Filipe Reis\source\repos\M3Extracao\M3.BackgroundTasks\bin\Debug\netcoreapp3.1\runtimes\win\lib\netcoreapp2.0\System.Diagnostics.EventLog.dll
 C:\Users\Filipe Reis\source\repos\M3Extracao\M3.BackgroundTasks\bin\Debug\netcoreapp3.1\M3.Domain.dll
-C:\Users\Filipe Reis\source\repos\M3Extracao\M3.BackgroundTasks\bin\Debug\netcoreapp3.1\Repository.Dapper.dll
-C:\Users\Filipe Reis\source\repos\M3Extracao\M3.BackgroundTasks\bin\Debug\netcoreapp3.1\Repository.Dapper.pdb
 C:\Users\Filipe Reis\source\repos\M3Extracao\M3.BackgroundTasks\bin\Debug\netcoreapp3.1\M3.Domain.pdb
 C:\Users\Filipe Reis\source\repos\M3Extracao\M3.BackgroundTasks\obj\Debug\netcoreapp3.1\M3.BackgroundTasks.csprojAssemblyReference.cache
-C:\Users\Filipe Reis\source\repos\M3Extracao\M3.BackgroundTasks\obj\Debug\netcoreapp3.1\M3.BackgroundTasks.csproj.CoreCompileInputs.cache
 C:\Users\Filipe Reis\source\repos\M3Extracao\M3.BackgroundTasks\obj\Debug\netcoreapp3.1\M3.BackgroundTasks.AssemblyInfoInputs.cache
 C:\Users\Filipe Reis\source\repos\M3Extracao\M3.BackgroundTasks\obj\Debug\netcoreapp3.1\M3.BackgroundTasks.AssemblyInfo.cs
 C:\Users\Filipe Reis\source\repos\M3Extracao\M3.BackgroundTasks\obj\Debug\netcoreapp3.1\M3.BackgroundTasks.csproj.CopyComplete
 C:\Users\Filipe Reis\source\repos\M3Extracao\M3.BackgroundTasks\obj\Debug\netcoreapp3.1\M3.BackgroundTasks.dll
 C:\Users\Filipe Reis\source\repos\M3Extracao\M3.BackgroundTasks\obj\Debug\netcoreapp3.1\M3.BackgroundTasks.pdb
 C:\Users\Filipe Reis\source\repos\M3Extracao\M3.BackgroundTasks\obj\Debug\netcoreapp3.1\M3.BackgroundTasks.genruntimeconfig.cache
+C:\Users\Filipe Reis\source\repos\M3Extracao\M3.BackgroundTasks\obj\Debug\netcoreapp3.1\M3.BackgroundTasks.csproj.CoreCompileInputs.cache

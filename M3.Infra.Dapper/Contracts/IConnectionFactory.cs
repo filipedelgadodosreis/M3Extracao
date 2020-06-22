@@ -4,6 +4,6 @@ namespace Repository.Dapper.Contracts
 {
     public interface IConnectionFactory
     {
-        IDbConnection Connection();
+        IDbConnection Connection(string connectionString);
     }
 }

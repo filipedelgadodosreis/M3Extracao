@@ -8,8 +8,10 @@
     ".NETCoreApp,Version=v3.1": {
       "M3.BackgroundTasks/1.0.0": {
         "dependencies": {
+          "Dapper": "2.0.35",
+          "M3.Domain": "1.0.0",
           "Microsoft.Extensions.Hosting": "3.1.4",
-          "Repository.Dapper": "1.0.0"
+          "System.Data.SqlClient": "4.8.1"
         },
         "runtime": {
           "M3.BackgroundTasks.dll": {}
@@ -418,16 +420,6 @@
         "runtime": {
           "M3.Domain.dll": {}
         }
-      },
-      "Repository.Dapper/1.0.0": {
-        "dependencies": {
-          "Dapper": "2.0.35",
-          "M3.Domain": "1.0.0",
-          "System.Data.SqlClient": "4.8.1"
-        },
-        "runtime": {
-          "Repository.Dapper.dll": {}
-        }
       }
     }
   },
@@ -697,11 +689,6 @@
       "hashPath": "system.security.principal.windows.4.7.0.nupkg.sha512"
     },
     "M3.Domain/1.0.0": {
-      "type": "project",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "Repository.Dapper/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

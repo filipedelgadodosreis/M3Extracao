@@ -1,8 +1,6 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Repository.Dapper;
-using Repository.Dapper.Connection;
-using Repository.Dapper.Contracts;
 
 namespace M3.BackgroundTasks
 {
@@ -17,9 +15,12 @@ namespace M3.BackgroundTasks
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) =>
                 {
+                    IConfiguration configuration = hostContext.Configuration;
+
+                    WorkerSettings options = configuration.GetSection("ConnectionStrings").Get<WorkerSettings>();
+
+                    services.AddSingleton(options);
                     services.AddHostedService<Worker>();
-                    services.AddSingleton<IConfigRepository, ConfigRepository>();
-                    services.AddSingleton<IConnectionFactory, DeafultSqlConnectionFactory>();
                 });
     }
 }

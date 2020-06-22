@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using M3.Domain;
+using M3.Domain.Contracts;
 using Repository.Dapper.Contracts;
 using System;
 using System.Collections.Generic;
@@ -9,11 +10,13 @@ namespace Repository.Dapper
 {
     public class ConfigRepository : IConfigRepository
     {
+        private readonly string _connectionString;
         private readonly IConnectionFactory _connection;
 
-        public ConfigRepository(IConnectionFactory connection)
+        public ConfigRepository(IConnectionFactory connection, string connectionString)
         {
             _connection = connection;
+            _connectionString = connectionString;
         }
 
         public Task<bool> Delete(int configId)
@@ -25,7 +28,7 @@ namespace Repository.Dapper
         {
             string sql = $"Select IdEmpresa, NmRazaoSocial From [config].[CadEmpresas]";
 
-            using var connectionDb = _connection.Connection();
+            using var connectionDb = _connection.Connection(_connectionString);
             connectionDb.Open();
 
             return await connectionDb.QueryAsync<M3EmpresaCad>(sql);
@@ -35,7 +38,7 @@ namespace Repository.Dapper
         {
             string sql = $"Select IdEmpresa, NmRazaoSocial From [config].[CadEmpresas] where [IdEmpresa] = @ConfigId";
 
-            using var connectionDb = _connection.Connection();
+            using var connectionDb = _connection.Connection(_connectionString);
             connectionDb.Open();
 
             return await connectionDb.QueryFirstOrDefaultAsync<M3EmpresaCad>(sql, new { ConfigId = configId });

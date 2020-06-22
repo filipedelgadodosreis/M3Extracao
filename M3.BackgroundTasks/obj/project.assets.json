@@ -500,21 +500,6 @@
         "runtime": {
           "bin/placeholder/M3.Domain.dll": {}
         }
-      },
-      "Repository.Dapper/1.0.0": {
-        "type": "project",
-        "framework": ".NETCoreApp,Version=v3.1",
-        "dependencies": {
-          "Dapper": "2.0.35",
-          "M3.Domain": "1.0.0",
-          "System.Data.SqlClient": "4.8.1"
-        },
-        "compile": {
-          "bin/placeholder/Repository.Dapper.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/Repository.Dapper.dll": {}
-        }
       }
     }
   },
@@ -1340,17 +1325,14 @@
       "type": "project",
       "path": "../M3.Domain/M3.Domain.csproj",
       "msbuildProject": "../M3.Domain/M3.Domain.csproj"
-    },
-    "Repository.Dapper/1.0.0": {
-      "type": "project",
-      "path": "../M3.Infra.Dapper/Repository.Dapper.csproj",
-      "msbuildProject": "../M3.Infra.Dapper/Repository.Dapper.csproj"
     }
   },
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v3.1": [
+      "Dapper >= 2.0.35",
+      "M3.Domain >= 1.0.0",
       "Microsoft.Extensions.Hosting >= 3.1.4",
-      "Repository.Dapper >= 1.0.0"
+      "System.Data.SqlClient >= 4.8.1"
     ]
   },
   "packageFolders": {
@@ -1384,8 +1366,8 @@
       "frameworks": {
         "netcoreapp3.1": {
           "projectReferences": {
-            "C:\\Users\\Filipe Reis\\source\\repos\\M3Extracao\\M3.Infra.Dapper\\Repository.Dapper.csproj": {
-              "projectPath": "C:\\Users\\Filipe Reis\\source\\repos\\M3Extracao\\M3.Infra.Dapper\\Repository.Dapper.csproj"
+            "C:\\Users\\Filipe Reis\\source\\repos\\M3Extracao\\M3.Domain\\M3.Domain.csproj": {
+              "projectPath": "C:\\Users\\Filipe Reis\\source\\repos\\M3Extracao\\M3.Domain\\M3.Domain.csproj"
             }
           }
         }
@@ -1399,9 +1381,17 @@
     "frameworks": {
       "netcoreapp3.1": {
         "dependencies": {
+          "Dapper": {
+            "target": "Package",
+            "version": "[2.0.35, )"
+          },
           "Microsoft.Extensions.Hosting": {
             "target": "Package",
             "version": "[3.1.4, )"
+          },
+          "System.Data.SqlClient": {
+            "target": "Package",
+            "version": "[4.8.1, )"
           }
         },
         "imports": [

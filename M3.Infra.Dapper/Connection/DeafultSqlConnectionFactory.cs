@@ -6,9 +6,9 @@ namespace Repository.Dapper.Connection
 {
     public class DeafultSqlConnectionFactory : IConnectionFactory
     {
-        public IDbConnection Connection()
+        public IDbConnection Connection(string connectionString)
         {
-            return new SqlConnection("Server=187.84.234.99;Database=dbMGIAdmin;User ID=userArena;Password=arena@2020");
+            return new SqlConnection(connectionString);
         }
     }
 }

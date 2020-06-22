@@ -1,8 +1,7 @@
-﻿using M3.Domain;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Repository.Dapper.Contracts
+namespace M3.Domain.Contracts
 {
     public interface IConfigRepository
     {
