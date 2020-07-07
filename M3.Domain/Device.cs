@@ -12,19 +12,19 @@ namespace M3.Domain
 
         //public int DEVICE_TYPE_ID { get; set; }
 
-        //public int UNIT_GROUP_ID { get; set; }
+        public int UNIT_GROUP_ID { get; set; }
 
         //public int EXT_NODE_ID { get; set; }
 
-        //public bool ENABLED { get; set; }
+        public bool ENABLED { get; set; }
 
-       // public string M3CLIENT_VERSION { get; set; }
+       public string M3CLIENT_VERSION { get; set; }
 
         //public int M3C_TYPE { get; set; }
 
         //public string TRANSFER_DIR { get; set; }
 
-        //public string IDH { get; set; }
+        public string IDH { get; set; }
 
         //public bool IDH_CONTROL { get; set; }
 
@@ -64,7 +64,7 @@ namespace M3.Domain
 
         //public DateTime LastMemoryCollectionDate { get; set; }
 
-        //public DateTime LastStorageCollectionDate { get; set; }
+        public DateTime? LastStorageCollectionDate { get; set; }
 
         //public DateTime LastBatteryCollectionDate { get; set; }
 
@@ -89,6 +89,8 @@ namespace M3.Domain
         //public int DeviceStatus_Id { get; set; }
 
         public string UNIT_GROUP_NAME { get; set; }
+
+        public string UNIT_GROUP_EXT_UNIT { get; set; }
 
         public string MDM_PROP_VALUE { get; set; }
 

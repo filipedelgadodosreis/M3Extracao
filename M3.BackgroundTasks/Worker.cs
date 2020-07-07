@@ -86,14 +86,29 @@ namespace M3.BackgroundTasks
         /// </summary>
         private async Task ExtrairDados()
         {
-            string sql = @"SELECT d.Device_ID, d.FreeBatteryPercentage, d.DEVICE_NAME, d.LastConnection, u.unit_group_name, d.FreeMemoryPercentage, d.FreeStoragePercentage, d.DEVICE_EXT_UNIT, mp.MDM_PROP_VALUE, 46 as IdEmpresa, GETUTCDATE() as DtLeitura " +
-                            "FROM device d " +
-                            "INNER JOIN unit_group u " +
-                            "ON  u.UNIT_GROUP_ID = d.UNIT_GROUP_ID " +
-                            "LEFT JOIN DEVICE_MDM_PROPERTY mp " +
-                            "ON d.DEVICE_ID = mp.DEVICE_ID " +
-                            "AND mp.MDM_PROP_KEY = 'TELEPHONY_OPERATOR' " +
-                            "WHERE d.DEVICE_EXT_UNIT in ('rde','rd6','army') and d.ENABLED = 1; ";
+            string sql = @"SELECT d.Device_ID,
+                                  d.FreeBatteryPercentage,
+                                  d.DEVICE_NAME,
+                                  d.LastConnection,
+                                  d.FreeMemoryPercentage,
+                                  d.FreeStoragePercentage,
+                                  d.DEVICE_EXT_UNIT,
+                                  mp.MDM_PROP_VALUE,
+                                  46 AS IdEmpresa,
+                                  GETUTCDATE() AS DtLeitura,
+                                  d.ENABLED,
+                                  d.M3CLIENT_VERSION,
+                                  d.IDH,
+                                  d.LastStorageCollectionDate,
+                                  u.unit_group_name,
+                                  u.UNIT_GROUP_ID,
+                                  u.UNIT_GROUP_EXT_UNIT
+                           FROM device d
+                           INNER JOIN unit_group u ON u.UNIT_GROUP_ID = d.UNIT_GROUP_ID
+                           LEFT JOIN DEVICE_MDM_PROPERTY mp ON d.DEVICE_ID = mp.DEVICE_ID
+                           AND mp.MDM_PROP_KEY = 'TELEPHONY_OPERATOR'
+                           WHERE d.DEVICE_EXT_UNIT IN ('rde', 'rd6','army')
+                             AND d.ENABLED = 1; ";
 
             using var conn = new SqlConnection(_settings.DefaultConnection);
             try
