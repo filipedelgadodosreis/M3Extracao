@@ -5,6 +5,8 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Z.Dapper.Plus;
@@ -16,6 +18,7 @@ namespace M3.BackgroundTasks
         private readonly WorkerSettings _settings;
 
         private readonly ILogger<Worker> _logger;
+        private IEnumerable<App> lstApps = null;
         private IEnumerable<Device> lstDevices = null;
 
         public Worker(ILogger<Worker> logger, WorkerSettings settings)
@@ -69,7 +72,9 @@ namespace M3.BackgroundTasks
                 var m3EmpresaCads = await BuscarEmpresa(46);
 
                 await ExtrairDados();
-                SalvarDados();
+                SalvarDadosEquipamentos();
+
+                await GetApp(lstDevices.Select(x => x.DEVICE_ID).ToList());
 
             }
             catch (Exception ex)
@@ -79,6 +84,48 @@ namespace M3.BackgroundTasks
 
 
             _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+        }
+
+
+        private async Task GetApp(IList<int> appIds)
+        {
+            string sql = @"SELECT mdmp_OP_date.MDM_PROP_VALUE AS 'Data',
+                                   mdmp_OP.MDM_PROP_VALUE,
+                                   d.DEVICE_NAME
+                            FROM DEVICE d
+                            INNER JOIN DEVICE_MDM_PROPERTY mdmp_OP_date ON d.DEVICE_ID = mdmp_OP_date.DEVICE_ID
+                            AND mdmp_OP_date.MDM_OPERATION_TYPE = 18
+                            AND mdmp_OP_date.MDM_PROP_KEY = 'OPERATION_EXEC_DATE'
+                            INNER JOIN DEVICE_MDM_PROPERTY mdmp_OP ON d.DEVICE_ID = mdmp_OP.DEVICE_ID
+                            AND mdmp_OP.MDM_OPERATION_TYPE = 18
+                            AND mdmp_OP.MDM_PROP_KEY = 'SOFTWARE_LIST'
+                            WHERE d.DEVICE_ID IN @ids ";
+
+            using var conn = new SqlConnection(_settings.DefaultConnection);
+            try
+            {
+                conn.Open();
+
+                //conn.Execute("CREATE TABLE #tempAnimalIds(animalId int not null primary key);");
+
+                while (appIds.Any())
+                {
+                    var ids2Insert = appIds.Take(1000);
+                    appIds = appIds.Skip(1000).ToList();
+
+                    lstApps = conn.Query<App>(sql, new { ids = ids2Insert }).Map(x => x.IdEmpresa = 46).Map(x => x.DtLeitura = DateTime.Now);
+
+                    SalvarDadosApp();
+
+                }
+
+                //return conn.Query<int>(@"SELECT animalID FROM #tempAnimalIds").ToList();
+            }
+            catch (SqlException exception)
+            {
+                _logger.LogCritical(exception, "FATAL ERROR: Database connections could not be opened: {Message}", exception.Message);
+            }
+
         }
 
         /// <summary>
@@ -127,7 +174,7 @@ namespace M3.BackgroundTasks
         /// Método responsável por salvar as informações na base do cliente 
         /// para geração dos relátorios
         /// </summary>
-        private void SalvarDados()
+        private void SalvarDadosEquipamentos()
         {
             DapperPlusManager.Entity<Device>().Table("[m3].[CargaDadosEquipamento]");
 
@@ -136,6 +183,27 @@ namespace M3.BackgroundTasks
                 try
                 {
                     conn.BulkInsert(lstDevices);
+                }
+                catch (SqlException exception)
+                {
+                    _logger.LogCritical(exception, "FATAL ERROR: Database connections could not be opened: {Message}", exception.Message);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Método responsável por salvar as informações na base do cliente 
+        /// para geração dos relátorios
+        /// </summary>
+        private void SalvarDadosApp()
+        {
+            DapperPlusManager.Entity<App>().Table("[m3].[CargaDadosAppEquipamento]");
+
+            using (var conn = new SqlConnection(_settings.LocalConnection))
+            {
+                try
+                {
+                    conn.BulkInsert(lstApps);
                 }
                 catch (SqlException exception)
                 {
