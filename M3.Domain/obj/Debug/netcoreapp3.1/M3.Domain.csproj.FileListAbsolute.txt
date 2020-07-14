@@ -6,4 +6,3 @@ C:\Users\Filipe Reis\source\repos\M3Extracao\M3.Domain\obj\Debug\netcoreapp3.1\M
 C:\Users\Filipe Reis\source\repos\M3Extracao\M3.Domain\obj\Debug\netcoreapp3.1\M3.Domain.AssemblyInfo.cs
 C:\Users\Filipe Reis\source\repos\M3Extracao\M3.Domain\obj\Debug\netcoreapp3.1\M3.Domain.dll
 C:\Users\Filipe Reis\source\repos\M3Extracao\M3.Domain\obj\Debug\netcoreapp3.1\M3.Domain.pdb
-C:\Users\Filipe Reis\source\repos\M3Extracao\M3.Domain\obj\Debug\netcoreapp3.1\M3.Domain.csprojAssemblyReference.cache
