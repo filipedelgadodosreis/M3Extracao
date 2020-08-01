@@ -1,13 +1,15 @@
 using Dapper;
+using EFCore.BulkExtensions;
+using M3.BackgroundTasks.Data;
 using M3.Domain;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Z.Dapper.Plus;
 
 namespace M3.BackgroundTasks
 {
@@ -17,14 +19,8 @@ namespace M3.BackgroundTasks
 
         private readonly ILogger<Worker> _logger;
 
-
-#pragma warning disable S125 // Sections of code should not be commented out
-        //private IEnumerable<App> lstApps = null;
-
-#pragma warning restore S125 // Sections of code should not be commented out
-
+        private IEnumerable<App> lstApps = null;
         private IEnumerable<Device> lstDevices = null;
-        private bool flagProcess = false;
 
         public Worker(ILogger<Worker> logger, WorkerSettings settings)
         {
@@ -38,58 +34,22 @@ namespace M3.BackgroundTasks
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                await Task.Delay(ProcessTime(), stoppingToken).ContinueWith((x) => ProcessWorker());
+                await Task.Delay(TimeSpan.FromMinutes(59), stoppingToken).ContinueWith((x) => ProcessWorker());
             }
 
             _logger.LogDebug("Fim do processo.");
         }
 
         /// <summary>
-        /// Método que calcula o horário de processamento diário
+        /// Método responsável pelo processamento do Worker
         /// </summary>
         /// <returns></returns>
-        private TimeSpan ProcessTime()
-        {
-            var dateNow = DateTime.Now;
-
-            var horaInicial = new DateTime(dateNow.Year, dateNow.Month, dateNow.Day, 6, 0, 0);
-            var horaFinal = new DateTime(dateNow.Year, dateNow.Month, dateNow.Day, 21, 0, 0);
-
-            TimeSpan ts;
-
-            if (dateNow <= horaFinal && dateNow >= horaInicial)
-            {
-                ts = DateTime.Now.AddHours(1) - dateNow;
-                flagProcess = false;
-            }
-            else if (flagProcess)
-            {
-                ts = DateTime.Now.AddHours(1) - dateNow;
-            }
-            else
-            {
-                flagProcess = true;
-                ts = DateTime.Now - dateNow;
-            }
-
-            return ts;
-        }
-
         private async Task ProcessWorker()
         {
             try
             {
-                if (flagProcess)
-                {
-
-#pragma warning disable S125 // Sections of code should not be commented out
-                    //var m3EmpresaCads = await BuscarEmpresa(46);
-                    //await GetApp(lstDevices.Select(x => x.DEVICE_ID).ToList());
-#pragma warning restore S125 // Sections of code should not be commented out
-
-                    await ExtrairDados();
-                    SalvarDadosEquipamentos();
-                }
+                await ProcessaEquipamentos();
+                await ProcesssaInventario();
             }
             catch (Exception ex)
             {
@@ -101,9 +61,27 @@ namespace M3.BackgroundTasks
         }
 
         /// <summary>
+        /// Método responsável pelo processamento da rotina de equipamentos
+        /// </summary>
+        public async Task ProcessaEquipamentos()
+        {
+            await ExtrairDadosEquipamentos();
+            await SalvarDadosEquipamentos();
+        }
+
+        /// <summary>
+        /// Método responsável pelo processamento da rotina de inventário
+        /// </summary>
+        public async Task ProcesssaInventario()
+        {
+            await ExtrairDadosInventario();
+            await SalvarDadosInventario();
+        }
+
+        /// <summary>
         /// Método responsável por extrair as informações da fonte
         /// </summary>
-        private async Task ExtrairDados()
+        private async Task ExtrairDadosEquipamentos()
         {
             string sql = @"SELECT d.Device_ID,
                                    d.FreeBatteryPercentage,
@@ -112,8 +90,8 @@ namespace M3.BackgroundTasks
                                    d.FreeMemoryPercentage,
                                    d.FreeStoragePercentage,
                                    d.DEVICE_EXT_UNIT,       
-                                   46 AS IdEmpresa,
-                                   GETUTCDATE() AS DtLeitura,
+                                   NULL AS IdEmpresa,
+                                   GETDATE() AS DtLeitura,
                                    d.ENABLED,
                                    d.M3CLIENT_VERSION,
                                    d.IDH,
@@ -209,111 +187,67 @@ namespace M3.BackgroundTasks
         /// Método responsável por salvar as informações na base do cliente 
         /// para geração dos relátorios
         /// </summary>
-        private void SalvarDadosEquipamentos()
+        private async Task SalvarDadosEquipamentos()
         {
-            DapperPlusManager.Entity<Device>().Table("[m3].[CargaDadosEquipamento]");
+            using (var context = new M3Context(ContextUtil.GetOptions()))
+            {
+                using (var transaction = await context.Database.BeginTransactionAsync())
+                {
+                    var list = lstDevices.ToList();
 
-            using var conn = new SqlConnection(_settings.LocalConnection);
+                    await context.BulkInsertAsync(list);
+                    transaction.Commit();
+                }
+            }
+        }
+        /// <summary>
+        /// Método responsável por recuperar as informações para dados do inventário de software
+        /// </summary>
+        private async Task ExtrairDadosInventario()
+        {
+            string sql = @"SELECT GETDATE() AS DtLeitura,
+                                                       NULL AS IdEmpresa,
+                                                       mdmp_OP_date.MDM_PROP_VALUE AS 'Data',
+                                                       mdmp_OP.MDM_PROP_VALUE,
+                                                       d.DEVICE_NAME
+                                                FROM DEVICE d
+                                                INNER JOIN DEVICE_MDM_PROPERTY mdmp_OP_date ON d.DEVICE_ID = mdmp_OP_date.DEVICE_ID
+                                                AND mdmp_OP_date.MDM_OPERATION_TYPE = 18
+                                                AND mdmp_OP_date.MDM_PROP_KEY = 'OPERATION_EXEC_DATE'
+                                                INNER JOIN DEVICE_MDM_PROPERTY mdmp_OP ON d.DEVICE_ID = mdmp_OP.DEVICE_ID
+                                                AND mdmp_OP.MDM_OPERATION_TYPE = 18
+                                                AND mdmp_OP.MDM_PROP_KEY = 'SOFTWARE_LIST' ";
+
+            using var conn = new SqlConnection(_settings.DefaultConnection);
             try
             {
-                conn.BulkInsert(lstDevices);
+                conn.Open();
+
+                lstApps = await conn.QueryAsync<App>(sql);
             }
             catch (SqlException exception)
             {
                 _logger.LogCritical(exception, "FATAL ERROR: Database connections could not be opened: {Message}", exception.Message);
             }
+
         }
 
-        //private async Task GetApp(IList<int> appIds)
+        /// <summary>
+        /// Método responsável por salvar as informações na base do cliente 
+        /// para geração dos relátorios
+        /// </summary>
+        private async Task SalvarDadosInventario()
+        {
+            using (var context = new M3Context(ContextUtil.GetOptions()))
+            {
+                using (var transaction = await context.Database.BeginTransactionAsync())
+                {
+                    var list = lstApps.ToList();
 
-#pragma warning disable S125 // Sections of code should not be commented out
-                            //{
-                            //    string sql = @"SELECT mdmp_OP_date.MDM_PROP_VALUE AS 'Data',
-                            //                           mdmp_OP.MDM_PROP_VALUE,
-                            //                           d.DEVICE_NAME
-                            //                    FROM DEVICE d
-                            //                    INNER JOIN DEVICE_MDM_PROPERTY mdmp_OP_date ON d.DEVICE_ID = mdmp_OP_date.DEVICE_ID
-                            //                    AND mdmp_OP_date.MDM_OPERATION_TYPE = 18
-                            //                    AND mdmp_OP_date.MDM_PROP_KEY = 'OPERATION_EXEC_DATE'
-                            //                    INNER JOIN DEVICE_MDM_PROPERTY mdmp_OP ON d.DEVICE_ID = mdmp_OP.DEVICE_ID
-                            //                    AND mdmp_OP.MDM_OPERATION_TYPE = 18
-                            //                    AND mdmp_OP.MDM_PROP_KEY = 'SOFTWARE_LIST'
-                            //                    WHERE d.DEVICE_ID IN @ids ";
-
-        //    using var conn = new SqlConnection(_settings.DefaultConnection);
-        //    try
-        //    {
-        //        conn.Open();
-
-        //        //conn.Execute("CREATE TABLE #tempAnimalIds(animalId int not null primary key);");
-
-        //        while (appIds.Any())
-        //        {
-        //            var ids2Insert = appIds.Take(1000);
-        //            appIds = appIds.Skip(1000).ToList();
-
-        //            lstApps = conn.Query<App>(sql, new { ids = ids2Insert }).Map(x => x.IdEmpresa = 46).Map(x => x.DtLeitura = DateTime.Now);
-
-        //            SalvarDadosApp();
-
-        //        }
-
-        //        //return conn.Query<int>(@"SELECT animalID FROM #tempAnimalIds").ToList();
-        //    }
-        //    catch (SqlException exception)
-        //    {
-        //        _logger.LogCritical(exception, "FATAL ERROR: Database connections could not be opened: {Message}", exception.Message);
-        //    }
-
-        //}
-
-        ///// <summary>
-        ///// Método responsável por salvar as informações na base do cliente 
-        ///// para geração dos relátorios
-        ///// </summary>
-        //private void SalvarDadosApp()
-        //{
-        //    DapperPlusManager.Entity<App>().Table("[m3].[CargaDadosAppEquipamento]");
-
-        //    using (var conn = new SqlConnection(_settings.LocalConnection))
-        //    {
-        //        try
-        //        {
-        //            conn.BulkInsert(lstApps);
-        //        }
-        //        catch (SqlException exception)
-        //        {
-        //            _logger.LogCritical(exception, "FATAL ERROR: Database connections could not be opened: {Message}", exception.Message);
-        //        }
-        //    }
-        //}
-
-        ///// <summary> 
-        ///// Método responsável por buscar as informações de configurações  
-        ///// </summary>
-        //private async Task<M3EmpresaCad> BuscarEmpresa(int configId)
-        //{
-        //    M3EmpresaCad m3EmpresaCad = null;
-
-        //    string sql = $"Select IdEmpresa, NmRazaoSocial From [config].[CadEmpresas] where [IdEmpresa] = @ConfigId";
-
-        //    using (var conn = new SqlConnection(_settings.LocalConnection))
-        //    {
-        //        try
-        //        {
-        //            conn.Open();
-
-        //            m3EmpresaCad = await conn.QueryFirstOrDefaultAsync<M3EmpresaCad>(sql, new { ConfigId = configId });
-        //        }
-        //        catch (SqlException exception)
-        //        {
-        //            _logger.LogCritical(exception, "FATAL ERROR: Database connections could not be opened: {Message}", exception.Message);
-        //        }
-
-        //    }
-
-        //    return m3EmpresaCad;
-        //}
+                    await context.BulkInsertAsync(list);
+                    transaction.Commit();
+                }
+            }
+        }
     }
-#pragma warning restore S125 // Sections of code should not be commented out
 }
