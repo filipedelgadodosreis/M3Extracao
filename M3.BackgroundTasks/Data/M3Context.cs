@@ -51,18 +51,6 @@ namespace M3.BackgroundTasks.Data
             modelBuilder.Entity<Device>().Property(x => x.Download_MB).HasColumnName("Download_MB");
             modelBuilder.Entity<Device>().Property(x => x.Upload_MB).HasColumnName("Upload_MB");
             modelBuilder.Entity<Device>().Property(x => x.TotalConsumo_MB).HasColumnName("TotalConsumo_MB");
-
-
-            modelBuilder.Entity<App>(entity => {
-                entity.ToTable("CargaDadosAppEquipamento", "m3");
-                entity.HasNoKey();
-            });
-
-            modelBuilder.Entity<App>().Property(x => x.DtLeitura).HasColumnName("DtLeitura");
-            modelBuilder.Entity<App>().Property(x => x.IdEmpresa).HasColumnName("IdEmpresa");
-            modelBuilder.Entity<App>().Property(x => x.Data).HasColumnName("Data");
-            modelBuilder.Entity<App>().Property(x => x.MDM_PROP_VALUE).HasColumnName("MDM_PROP_VALUE");
-            modelBuilder.Entity<App>().Property(x => x.DEVICE_NAME).HasColumnName("DEVICE_NAME");
         }
     }
 

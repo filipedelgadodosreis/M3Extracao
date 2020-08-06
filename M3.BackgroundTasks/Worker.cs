@@ -18,8 +18,6 @@ namespace M3.BackgroundTasks
         private readonly WorkerSettings _settings;
 
         private readonly ILogger<Worker> _logger;
-
-        private IEnumerable<App> lstApps = null;
         private IEnumerable<Device> lstDevices = null;
 
         public Worker(ILogger<Worker> logger, WorkerSettings settings)
@@ -49,13 +47,11 @@ namespace M3.BackgroundTasks
             try
             {
                 await ProcessaEquipamentos();
-                await ProcesssaInventario();
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Erro ao carregar dados M3: {ex.Message}");
             }
-
 
             _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
         }
@@ -67,15 +63,6 @@ namespace M3.BackgroundTasks
         {
             await ExtrairDadosEquipamentos();
             await SalvarDadosEquipamentos();
-        }
-
-        /// <summary>
-        /// Método responsável pelo processamento da rotina de inventário
-        /// </summary>
-        public async Task ProcesssaInventario()
-        {
-            await ExtrairDadosInventario();
-            await SalvarDadosInventario();
         }
 
         /// <summary>
@@ -189,65 +176,12 @@ namespace M3.BackgroundTasks
         /// </summary>
         private async Task SalvarDadosEquipamentos()
         {
-            using (var context = new M3Context(ContextUtil.GetOptions()))
-            {
-                using (var transaction = await context.Database.BeginTransactionAsync())
-                {
-                    var list = lstDevices.ToList();
+            using var context = new M3Context(ContextUtil.GetOptions());
+            using var transaction = await context.Database.BeginTransactionAsync();
+            var list = lstDevices.ToList();
 
-                    await context.BulkInsertAsync(list);
-                    transaction.Commit();
-                }
-            }
-        }
-        /// <summary>
-        /// Método responsável por recuperar as informações para dados do inventário de software
-        /// </summary>
-        private async Task ExtrairDadosInventario()
-        {
-            string sql = @"SELECT GETDATE() AS DtLeitura,
-                                                       NULL AS IdEmpresa,
-                                                       mdmp_OP_date.MDM_PROP_VALUE AS 'Data',
-                                                       mdmp_OP.MDM_PROP_VALUE,
-                                                       d.DEVICE_NAME
-                                                FROM DEVICE d
-                                                INNER JOIN DEVICE_MDM_PROPERTY mdmp_OP_date ON d.DEVICE_ID = mdmp_OP_date.DEVICE_ID
-                                                AND mdmp_OP_date.MDM_OPERATION_TYPE = 18
-                                                AND mdmp_OP_date.MDM_PROP_KEY = 'OPERATION_EXEC_DATE'
-                                                INNER JOIN DEVICE_MDM_PROPERTY mdmp_OP ON d.DEVICE_ID = mdmp_OP.DEVICE_ID
-                                                AND mdmp_OP.MDM_OPERATION_TYPE = 18
-                                                AND mdmp_OP.MDM_PROP_KEY = 'SOFTWARE_LIST' ";
-
-            using var conn = new SqlConnection(_settings.DefaultConnection);
-            try
-            {
-                conn.Open();
-
-                lstApps = await conn.QueryAsync<App>(sql);
-            }
-            catch (SqlException exception)
-            {
-                _logger.LogCritical(exception, "FATAL ERROR: Database connections could not be opened: {Message}", exception.Message);
-            }
-
-        }
-
-        /// <summary>
-        /// Método responsável por salvar as informações na base do cliente 
-        /// para geração dos relátorios
-        /// </summary>
-        private async Task SalvarDadosInventario()
-        {
-            using (var context = new M3Context(ContextUtil.GetOptions()))
-            {
-                using (var transaction = await context.Database.BeginTransactionAsync())
-                {
-                    var list = lstApps.ToList();
-
-                    await context.BulkInsertAsync(list);
-                    transaction.Commit();
-                }
-            }
+            await context.BulkInsertAsync(list);
+            transaction.Commit();
         }
     }
 }
